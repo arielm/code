@@ -22,5 +22,5 @@ protected:
     chr::xf::FontSequence sequence;
     chr::gl::shaders::TextureAlphaShader textureAlphaShader;
 
-    static void drawTextHelix(chr::XFont &font, const std::u16string &text, float r, float turns, float h, float offsetX = 0, float offsetY = 0);
+    static void drawTextHelix(chr::XFont &font, const std::u16string &text, float r, float turns, float h, float offsetX, chr::XFont::Alignment alignY);
 };

@@ -30,7 +30,7 @@ void Sketch::setup()
     float offset = (L - font->getStringAdvance(text)) / 2;
 
     font->beginSequence(sequence);
-    drawTextHelix(*font, text, R, TURNS, -H, offset, font->getOffsetY(XFont::ALIGN_MIDDLE));
+    drawTextHelix(*font, text, R, TURNS, -H, offset, XFont::ALIGN_MIDDLE);
     font->endSequence();
 
     // ---
@@ -67,7 +67,7 @@ void Sketch::draw()
         .translate(0, 0, H / 2);
 
     State()
-        .setShaderMatrix(camera.getViewProjectionMatrix())
+        .setShaderMatrix<MVP>(camera.getViewProjectionMatrix())
         .apply();
 
     // ---
@@ -81,24 +81,25 @@ void Sketch::draw()
     font->replaySequence(sequence);
 }
 
-void Sketch::drawTextHelix(XFont &font, const u16string &text, float r, float turns, float h, float offsetX, float offsetY)
+void Sketch::drawTextHelix(XFont &font, const u16string &text, float r, float turns, float h, float offset, XFont::Alignment alignY)
 {
     float l = TWO_PI * turns;
-    float L = PI * turns * (r + r);
+    float L = l * r;
     float dz = h / l;
     float ay = -atan2f(h, L);
 
+    float offsetY = font.getOffsetY(alignY);
     Matrix matrix;
 
     for (auto c : text)
     {
         auto glyphIndex = font.getGlyphIndex(c);
         float halfWidth = font.getGlyphAdvance(glyphIndex) / 2;
-        offsetX += halfWidth;
+        offset += halfWidth;
 
         if (glyphIndex >= 0)
         {
-            float d = offsetX / r;
+            float d = offset / r;
             matrix
                 .setTranslate(-cosf(d) * r, +sinf(d) * r, d * dz)
                 .rotateZ(HALF_PI - d)
@@ -108,6 +109,6 @@ void Sketch::drawTextHelix(XFont &font, const u16string &text, float r, float tu
             font.addGlyph(matrix, glyphIndex, -halfWidth, offsetY);
         }
 
-        offsetX += halfWidth;
+        offset += halfWidth;
     }
 }
