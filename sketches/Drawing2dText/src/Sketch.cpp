@@ -138,8 +138,8 @@ void Sketch::drawText(XFont &font, const u16string &text, float x, float y)
 
 void Sketch::drawAlignedText(XFont &font, const u16string &text, const glm::vec2 &position, XFont::Alignment alignX, XFont::Alignment alignY)
 {
-    auto center = position + font.getOffset(text, alignX, alignY);
-    drawText(font, text, center.x, center.y);
+    auto newPosition = position + font.getOffset(text, alignX, alignY);
+    drawText(font, text, newPosition.x, newPosition.y);
 }
 
 void Sketch::drawAlignedText(XFont &font, const u16string &text, Matrix &matrix, XFont::Alignment alignX, XFont::Alignment alignY)
