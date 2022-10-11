@@ -5,6 +5,9 @@ using namespace chr;
 using namespace gl;
 
 constexpr float PADDING = 20;
+constexpr float RADIUS = 255;
+
+const u16string TEXT = u"Some girls are bigger than others. Some girls mothers are bigger than other girls' mothers."; // Lyrics by the Smiths
 
 void Sketch::setup()
 {
@@ -12,6 +15,11 @@ void Sketch::setup()
     font1->setShader(textureAlphaShader);
     font1->setSize(20);
     font1->setColor(0, 0, 0, 1);
+
+    font2 = fontManager.getFont(InputSource::resource("Georgia_Regular_64.fnt"), XFont::Properties2d());
+    font2->setShader(textureAlphaShader);
+    font2->setSize(40);
+    font2->setColor(0.75f, 0, 0, 1);
 
     strokeBatch
         .setPrimitive(GL_LINES)
@@ -31,6 +39,7 @@ void Sketch::resize()
 {
     strokeBatch.clear();
     drawGuides();
+    drawCircle(windowInfo.center(), RADIUS);
 
     drawText1();
 }
@@ -56,7 +65,13 @@ void Sketch::draw()
     // ---
 
     strokeBatch.flush();
+
     font1->replaySequence(sequence1);
+
+    font2->beginSequence(sequence2);
+    drawCircularText(*font2, TEXT, windowInfo.center(), RADIUS, clock()->getTime() * 100.0f, XFont::ALIGN_MIDDLE);
+    font2->endSequence();
+    font2->replaySequence(sequence2);
 }
 
 void Sketch::drawGuides()
@@ -68,6 +83,24 @@ void Sketch::drawGuides()
     strokeBatch.addVertices(glm::vec2(width - PADDING, 0), glm::vec2(width - PADDING, height));
     strokeBatch.addVertices(glm::vec2(0, PADDING), glm::vec2(width, PADDING));
     strokeBatch.addVertices(glm::vec2(0, height - PADDING), glm::vec2(width, height - PADDING));
+}
+
+void Sketch::drawCircle(const glm::vec2 &position, float radius)
+{
+    float segmentLength = 15;
+    int n = ceilf(TWO_PI * radius / segmentLength) + 1;
+    vector<glm::vec2> points;
+
+    for (int i = 0; i < n; i++)
+    {
+        float d = i * segmentLength / radius;
+        points.emplace_back(position.x + sinf(d) * radius, position.y - cosf(d) * radius);
+    }
+
+    for (int i = 0; i < n - 1; i++)
+    {
+        strokeBatch.addVertices(points[i], points[i + 1]);
+    }
 }
 
 void Sketch::drawText1()
@@ -121,5 +154,30 @@ void Sketch::drawAlignedText(XFont &font, const u16string &text, Matrix &matrix,
         auto glyphIndex = font.getGlyphIndex(c);
         font.addGlyph(matrix, glyphIndex, offset.x, offset.y);
         offset.x += font.getGlyphAdvance(glyphIndex);
+    }
+}
+
+void Sketch::drawCircularText(chr::XFont &font, const std::u16string &text, const glm::vec2 &position, float radius, float offset, chr::XFont::Alignment alignY)
+{
+    float offsetY = font.getOffsetY(alignY);
+    Matrix matrix;
+
+    for (auto c : text)
+    {
+        auto glyphIndex = font.getGlyphIndex(c);
+        float halfWidth = font.getGlyphAdvance(glyphIndex) / 2;
+        offset += halfWidth;
+
+        if (glyphIndex >= 0)
+        {
+            float d = offset / radius;
+            matrix
+                .setTranslate(position.x + sinf(d) * radius, position.y - cosf(d) * radius)
+                .rotateZ(d);
+
+            font.addGlyph(matrix, glyphIndex, -halfWidth, offsetY);
+        }
+
+        offset += halfWidth;
     }
 }
