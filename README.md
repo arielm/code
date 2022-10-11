@@ -4,7 +4,7 @@ Source code for some of the examples featured in my [blog](https://arielm.github
 
 ### Instructions
 
-1. Following [these instructions](https://arielm.github.io/cross-blog/2022/10/06/hello-world.html) for running on macOS or Linux, or [these instructions](https://arielm.github.io/cross-blog/2022/10/06/running-in-the-browser.html) for running in the browser.
+1. Follow [these instructions](https://arielm.github.io/cross-blog/2022/10/06/hello-world.html) for running on macOS or Linux, or [these instructions](https://arielm.github.io/cross-blog/2022/10/06/running-in-the-browser.html) for running in the browser.
 
 2. Clone this repository with:
    ```
