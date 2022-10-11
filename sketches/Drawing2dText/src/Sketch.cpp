@@ -69,20 +69,17 @@ void Sketch::draw()
     font1->replaySequence(sequence1);
 
     font2->beginSequence(sequence2);
-    drawCircularText(*font2, TEXT, windowInfo.center(), RADIUS, clock()->getTime() * 100.0f, XFont::ALIGN_MIDDLE);
+    drawCircularText(*font2, TEXT, windowInfo.center(), RADIUS, -clock()->getTime() * 100.0f, XFont::ALIGN_MIDDLE);
     font2->endSequence();
     font2->replaySequence(sequence2);
 }
 
 void Sketch::drawGuides()
 {
-    float width = windowInfo.width;
-    float height = windowInfo.height;
-
-    strokeBatch.addVertices(glm::vec2(PADDING, 0), glm::vec2(PADDING, height));
-    strokeBatch.addVertices(glm::vec2(width - PADDING, 0), glm::vec2(width - PADDING, height));
-    strokeBatch.addVertices(glm::vec2(0, PADDING), glm::vec2(width, PADDING));
-    strokeBatch.addVertices(glm::vec2(0, height - PADDING), glm::vec2(width, height - PADDING));
+    strokeBatch.addVertices(glm::vec2(PADDING, 0), glm::vec2(PADDING, windowInfo.height));
+    strokeBatch.addVertices(glm::vec2(windowInfo.width - PADDING, 0), glm::vec2(windowInfo.width - PADDING, windowInfo.height));
+    strokeBatch.addVertices(glm::vec2(0, PADDING), glm::vec2(windowInfo.width, PADDING));
+    strokeBatch.addVertices(glm::vec2(0, windowInfo.height - PADDING), glm::vec2(windowInfo.width, windowInfo.height - PADDING));
 }
 
 void Sketch::drawCircle(const glm::vec2 &position, float radius)
