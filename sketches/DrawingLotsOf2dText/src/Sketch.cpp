@@ -6,21 +6,37 @@ using namespace gl;
 
 void Sketch::setup()
 {
-    auto lines = utils::readLines<u16string>(InputSource::resource("song.txt"));
-
-    u16string text;
-    for (const auto &line : lines)
+    vector<u16string> songs;
+    for (auto &name : {"song1.txt", "song2.txt", "song3.txt", "song4.txt", "song5.txt", "song6.txt", "song7.txt"})
     {
-        text += line + u" ";
+        auto lines = utils::readLines<u16string>(InputSource::resource(name));
+
+        u16string text;
+        for (const auto &line : lines)
+        {
+            text += line + u" ";
+        }
+
+        songs.push_back(text);
     }
 
     font = fontManager.getFont(InputSource::resource("Georgia_Regular_64.fnt"), XFont::Properties2d());
     font->setShader(textureAlphaShader);
     font->setSize(16);
-    font->setColor(0, 0, 0, 1);
 
-    font->beginSequence(sequence);
-    drawTextSpiral(*font, text, 30, 800, 33, 0, XFont::ALIGN_MIDDLE);
+    font->beginSequence(sequence, true);
+
+    float offset = 0;
+    bool red = false;
+    for (const auto &song : songs)
+    {
+        glm::vec4 color = red ? glm::vec4(0.75f, 0, 0, 1) : glm::vec4(0, 0, 0, 1);
+        font->setColor(color);
+
+        offset = drawTextSpiral(*font, song, 30, 900, 45, offset, XFont::ALIGN_MIDDLE);
+        red ^= true;
+    }
+
     font->endSequence();
 
     // ---
@@ -45,7 +61,7 @@ void Sketch::draw()
     modelViewMatrix
         .translate(windowInfo.center())
         .scale(1, -1)
-        .rotateZ(clock()->getTime() * 1.0f);
+        .rotateZ(clock()->getTime() * 0.33f);
 
     gl::State()
         .setShaderMatrix(modelViewMatrix * projectionMatrix)
@@ -56,7 +72,7 @@ void Sketch::draw()
     font->replaySequence(sequence);
 }
 
-void Sketch::drawTextSpiral(XFont &font, const u16string &text, float r1, float r2, float turns, float offset, chr::XFont::Alignment alignY)
+float Sketch::drawTextSpiral(XFont &font, const u16string &text, float r1, float r2, float turns, float offset, chr::XFont::Alignment alignY)
 {
     float l = TWO_PI * turns;
     float dr = (r2 - r1) / l;
@@ -84,4 +100,6 @@ void Sketch::drawTextSpiral(XFont &font, const u16string &text, float r1, float 
 
         offset += halfWidth;
     }
+
+    return offset;
 }

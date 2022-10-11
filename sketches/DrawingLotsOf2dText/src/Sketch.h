@@ -18,5 +18,5 @@ protected:
     chr::xf::FontSequence sequence;
     chr::gl::shaders::TextureAlphaShader textureAlphaShader;
 
-    static void drawTextSpiral(chr::XFont &font, const std::u16string &text, float r1, float r2, float turns, float offset, chr::XFont::Alignment alignY);
+    static float drawTextSpiral(chr::XFont &font, const std::u16string &text, float r1, float r2, float turns, float offset, chr::XFont::Alignment alignY);
 };
