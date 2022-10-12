@@ -24,6 +24,8 @@ void Sketch::setup()
     font->setShader(textureAlphaShader);
     font->setSize(16);
 
+    // ---
+
     font->beginSequence(sequence, true);
 
     float offset = 0;
@@ -92,8 +94,8 @@ float Sketch::drawTextSpiral(XFont &font, const u16string &text, float r1, float
             float d = (r - r1) / dr;
 
             matrix
-                .setTranslate(cosf(-d) * r, sinf(-d) * r)
-                .rotateZ(-d - HALF_PI);
+                .setTranslate(-sinf(-d) * r, +cosf(-d) * r)
+                .rotateZ(-d);
 
             font.addGlyph(matrix, glyphIndex, -halfWidth, offsetY);
         }
