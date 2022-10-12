@@ -4,32 +4,52 @@ using namespace std;
 using namespace chr;
 using namespace gl;
 
-static constexpr float GUTTER = 20;
+static constexpr float FONT_SIZE = 12;
+static constexpr float GUTTER = 12;
 
 void Sketch::setup()
 {
     vector<vector<u16string>> songs;
-    for (auto &name : {"song1.txt", "song2.txt", "song3.txt", "song4.txt", "song5.txt", "song6.txt", "song7.txt"})
+    for (auto &name : {"song1.txt", "song2.txt", "song3.txt", "song4.txt", "song5.txt", "song6.txt", "song7.txt"}) // Lyrics by the Smiths
     {
         songs.push_back(utils::readLines<u16string>(InputSource::resource(name)));
     }
 
     font = fontManager.getFont(InputSource::resource("Georgia_Regular_64.fnt"), XFont::Properties3d());
     font->setShader(textureAlphaShader);
-    font->setSize(12);
+    font->setSize(FONT_SIZE);
     font->setColor(0, 0, 0, 1);
+
+    lineBatch
+        .setPrimitive(GL_LINES)
+        .setShader(colorShader)
+        .setShaderColor(0, 0, 0, 0.33f);
+
+    // ---
 
     font->beginSequence(sequence);
 
     float x = -150;
     float y= -70;
+    float maxHeight = 0;
+    vector<float> xx;
     for (const auto &song : songs)
     {
         auto result = drawLines(*font, song, x, y);
-        x += GUTTER + result.x;
+        x += result.x + GUTTER;
+        xx.push_back(x);
+        x += GUTTER;
+
+        if (result.y > maxHeight) maxHeight = result.y;
     }
 
     font->endSequence();
+
+    float yy = y - font->getAscent();
+    for (int i = 0; i < xx.size() -1; i++)
+    {
+        lineBatch.addVertices(glm::vec2(xx[i], yy), glm::vec2(xx[i], yy + maxHeight));
+    }
 
     // ---
 
@@ -71,6 +91,7 @@ void Sketch::draw()
 
     // ---
 
+    lineBatch.flush();
     font->replaySequence(sequence);
 }
 
@@ -88,7 +109,6 @@ glm::vec2 Sketch::drawLines(XFont &font, const vector<u16string> &lines, float x
 {
     float lineHeight = font.getHeight() * 1.2f;
     float maxWidth = 0;
-
     for (const auto &line : lines)
     {
         float width = font.getStringAdvance(line);
@@ -117,7 +137,7 @@ glm::vec2 Sketch::convert(const glm::vec2 &position)
     auto result = ray.planeIntersection(glm::vec3(0), glm::vec3(0, 0, 1));
     if (result.first)
     {
-        return glm::vec2(ray.origin + result.second * ray.direction); // SIMPLIFICATION TO 2D IS POSSIBLE BECAUSE PLANE LIES ON GROUND (0)
+        return glm::vec2(ray.origin + result.second * ray.direction); // Simplification to 2d is possible because plane lies on ground (0)
     }
 
     return glm::vec2(0);

@@ -7,7 +7,7 @@ using namespace gl;
 void Sketch::setup()
 {
     vector<u16string> songs;
-    for (auto &name : {"song1.txt", "song2.txt", "song3.txt", "song4.txt", "song5.txt", "song6.txt", "song7.txt"})
+    for (auto &name : {"song1.txt", "song2.txt", "song3.txt", "song4.txt", "song5.txt", "song6.txt", "song7.txt"}) // Lyrics by the Smiths
     {
         auto lines = utils::readLines<u16string>(InputSource::resource(name));
 
