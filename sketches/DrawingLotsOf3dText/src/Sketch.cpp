@@ -4,13 +4,15 @@ using namespace std;
 using namespace chr;
 using namespace gl;
 
-static constexpr float FOVY = 45;
-static constexpr float CAMERA_DISTANCE = 400;
-static constexpr float CAMERA_ELEVATION = 60;
+static constexpr float GUTTER = 20;
 
 void Sketch::setup()
 {
-    auto lines = utils::readLines<u16string>(InputSource::resource("song1.txt"));
+    vector<vector<u16string>> songs;
+    for (auto &name : {"song1.txt", "song2.txt", "song3.txt", "song4.txt", "song5.txt", "song6.txt", "song7.txt"})
+    {
+        songs.push_back(utils::readLines<u16string>(InputSource::resource(name)));
+    }
 
     font = fontManager.getFont(InputSource::resource("Georgia_Regular_64.fnt"), XFont::Properties3d());
     font->setShader(textureAlphaShader);
@@ -18,7 +20,15 @@ void Sketch::setup()
     font->setColor(0, 0, 0, 1);
 
     font->beginSequence(sequence);
-    drawLines(*font, lines, 0, 0);
+
+    float x = -150;
+    float y= -70;
+    for (const auto &song : songs)
+    {
+        auto result = drawLines(*font, song, x, y);
+        x += GUTTER + result.x;
+    }
+
     font->endSequence();
 
     // ---
@@ -33,7 +43,7 @@ void Sketch::setup()
 void Sketch::resize()
 {
     camera
-        .setFov(FOVY)
+        .setFov(45)
         .setClip(1, 10000)
         .setWindowSize(windowInfo.size);
 }
@@ -48,8 +58,9 @@ void Sketch::draw()
     camera.getViewMatrix()
         .setIdentity()
         .scale(1, -1, 1)
-        .translate(0, 0, -CAMERA_DISTANCE)
-        .rotateX(CAMERA_ELEVATION * D2R);
+        .translate(0, 0, -400)
+        .rotateX(45 * D2R)
+        .rotateZ(-15 * D2R);
 
     Matrix panMatrix;
     panMatrix.translate(pan);
@@ -73,15 +84,21 @@ void Sketch::updateTouch(int index, float x, float y)
     pan = convert(glm::vec2(x, y)) - dragOrigin;
 }
 
-void Sketch::drawLines(XFont &font, const vector<u16string> &lines, float x, float y)
+glm::vec2 Sketch::drawLines(XFont &font, const vector<u16string> &lines, float x, float y)
 {
     float lineHeight = font.getHeight() * 1.2f;
+    float maxWidth = 0;
 
     for (const auto &line : lines)
     {
+        float width = font.getStringAdvance(line);
+        if (width > maxWidth) maxWidth = width;
+
         drawText(font, line, x, y);
         y += lineHeight;
     }
+
+    return glm::vec2(maxWidth, lineHeight * lines.size());
 }
 
 void Sketch::drawText(XFont &font, const u16string &text, float x, float y)

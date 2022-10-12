@@ -28,7 +28,7 @@ protected:
     chr::xf::FontSequence sequence;
     chr::gl::shaders::TextureAlphaShader textureAlphaShader;
 
-    static void drawLines(chr::XFont &font, const std::vector<std::u16string> &lines, float x, float y);
+    static glm::vec2 drawLines(chr::XFont &font, const std::vector<std::u16string> &lines, float x, float y);
     static void drawText(chr::XFont &font, const std::u16string &text, float x, float y);
 
     glm::vec2 convert(const glm::vec2 &position);
