@@ -35,12 +35,12 @@ void Sketch::setup()
     vector<float> xx;
     for (const auto &song : songs)
     {
-        auto result = drawLines(*font, song, x, y);
-        x += result.x + GUTTER;
+        auto size = drawLines(*font, song, x, y);
+        x += size.x + GUTTER;
         xx.push_back(x);
         x += GUTTER;
 
-        if (result.y > maxHeight) maxHeight = result.y;
+        if (size.y > maxHeight) maxHeight = size.y;
     }
 
     font->endSequence();
@@ -105,6 +105,18 @@ void Sketch::updateTouch(int index, float x, float y)
     pan = convert(glm::vec2(x, y)) - dragOrigin;
 }
 
+glm::vec2 Sketch::convert(const glm::vec2 &position)
+{
+    auto ray = camera.getRay(position);
+    auto result = ray.planeIntersection(glm::vec3(0), glm::vec3(0, 0, 1));
+    if (result.first)
+    {
+        return glm::vec2(ray.origin + result.second * ray.direction); // Simplification to 2d is possible because plane lies on ground (0)
+    }
+
+    return glm::vec2(0);
+}
+
 glm::vec2 Sketch::drawLines(XFont &font, const vector<u16string> &lines, float x, float y)
 {
     float lineHeight = font.getHeight() * 1.2f;
@@ -129,16 +141,4 @@ void Sketch::drawText(XFont &font, const u16string &text, float x, float y)
         font.addGlyph(glyphIndex, x, y);
         x += font.getGlyphAdvance(glyphIndex);
     }
-}
-
-glm::vec2 Sketch::convert(const glm::vec2 &position)
-{
-    auto ray = camera.getRay(position);
-    auto result = ray.planeIntersection(glm::vec3(0), glm::vec3(0, 0, 1));
-    if (result.first)
-    {
-        return glm::vec2(ray.origin + result.second * ray.direction); // Simplification to 2d is possible because plane lies on ground (0)
-    }
-
-    return glm::vec2(0);
 }
