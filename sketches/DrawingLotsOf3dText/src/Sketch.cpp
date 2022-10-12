@@ -10,12 +10,16 @@ static constexpr float CAMERA_ELEVATION = 60;
 
 void Sketch::setup()
 {
-    lineBatch
-        .setPrimitive(GL_LINES)
-        .setShader(colorShader)
-        .setShaderColor(0, 0, 0, 0.5f);
+    auto lines = utils::readLines<u16string>(InputSource::resource("song1.txt"));
 
-    drawGrid(math::Rectf(-1000, -1000, 2000, 2000), glm::vec2(0), 20);
+    font = fontManager.getFont(InputSource::resource("Georgia_Regular_64.fnt"), XFont::Properties3d());
+    font->setShader(textureAlphaShader);
+    font->setSize(12);
+    font->setColor(0, 0, 0, 1);
+
+    font->beginSequence(sequence);
+    drawLines(*font, lines, 0, 0);
+    font->endSequence();
 
     // ---
 
@@ -45,21 +49,25 @@ void Sketch::draw()
         .setIdentity()
         .scale(1, -1, 1)
         .translate(0, 0, -CAMERA_DISTANCE)
-        .rotateX(CAMERA_ELEVATION * D2R)
-        .translate(center + pan);
+        .rotateX(CAMERA_ELEVATION * D2R);
+
+    Matrix panMatrix;
+    panMatrix
+        .translate(-pan)
+        .inverse();
 
     State()
-        .setShaderMatrix<MVP>(camera.getViewProjectionMatrix())
+        .setShaderMatrix<MVP>(panMatrix * camera.getViewProjectionMatrix())
         .apply();
 
     // ---
 
-    lineBatch.flush();
+    font->replaySequence(sequence);
 }
 
 void Sketch::addTouch(int index, float x, float y)
 {
-    dragOrigin = convert(glm::vec2(x, y));
+    dragOrigin = convert(glm::vec2(x, y)) - pan;
 }
 
 void Sketch::updateTouch(int index, float x, float y)
@@ -67,50 +75,35 @@ void Sketch::updateTouch(int index, float x, float y)
     pan = convert(glm::vec2(x, y)) - dragOrigin;
 }
 
-void Sketch::removeTouch(int index, float x, float y)
+void Sketch::drawLines(XFont &font, const vector<u16string> &lines, float x, float y)
 {
-    center += pan;
-    pan = glm::vec2(0);
+    float lineHeight = font.getHeight() * 1.2f;
+
+    for (const auto &line : lines)
+    {
+        drawText(font, line, x, y);
+        y += lineHeight;
+    }
 }
 
-void Sketch::drawGrid(const math::Rectf &bounds, const glm::vec2 &offset, float size)
+void Sketch::drawText(XFont &font, const u16string &text, float x, float y)
 {
-    float ox1 = floorf(bounds.x1 / size);
-    float ox2 = ceilf(bounds.x2 / size);
-
-    float oy1 = floorf(bounds.y1 / size);
-    float oy2 = ceilf(bounds.y2 / size);
-
-    int nx = int(ox2 - ox1) + 1;
-    int ny = int(oy2 - oy1) + 1;
-
-    for (int ix = 0; ix < nx; ix++)
+    for (auto c : text)
     {
-        float xx = bounds.x1 + size * ix - math::boundf(offset.x, size);
-        if ((xx >= bounds.x1) && (xx <= bounds.x2))
-        {
-            lineBatch.addVertices(glm::vec3(xx, bounds.y1, 0), glm::vec3(xx, bounds.y2, 0));
-        }
-    }
-
-    for (int iy = 0; iy < ny; iy++)
-    {
-        float yy = bounds.y1 + size * iy - math::boundf(offset.y, size);
-        if ((yy >= bounds.y1) && (yy <= bounds.y2))
-        {
-            lineBatch.addVertices(glm::vec3(bounds.x1, yy, 0), glm::vec3(bounds.x2, yy, 0));
-        }
+        auto glyphIndex = font.getGlyphIndex(c);
+        font.addGlyph(glyphIndex, x, y);
+        x += font.getGlyphAdvance(glyphIndex);
     }
 }
 
 glm::vec2 Sketch::convert(const glm::vec2 &position)
 {
     auto ray = camera.getRay(position);
-    auto result = ray.planeIntersection(glm::vec3(center, 0), glm::vec3(0, 0, 1));
+    auto result = ray.planeIntersection(glm::vec3(0), glm::vec3(0, 0, 1));
     if (result.first)
     {
         return glm::vec2(ray.origin + result.second * ray.direction); // SIMPLIFICATION TO 2D IS POSSIBLE BECAUSE PLANE LIES ON GROUND (0)
     }
 
-    return glm::vec2(0); // XXX
+    return glm::vec2(0);
 }
