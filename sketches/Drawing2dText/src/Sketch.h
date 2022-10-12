@@ -15,7 +15,7 @@ public:
     void draw() final;
 
 protected:
-    chr::gl::VertexBatch<chr::gl::XYZ> strokeBatch;
+    chr::gl::VertexBatch<chr::gl::XYZ> lineBatch;
     chr::gl::shaders::ColorShader colorShader;
 
     chr::xf::FontManager fontManager;

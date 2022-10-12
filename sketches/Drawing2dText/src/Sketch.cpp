@@ -21,7 +21,7 @@ void Sketch::setup()
     font2->setSize(40);
     font2->setColor(0.75f, 0, 0, 1);
 
-    strokeBatch
+    lineBatch
         .setPrimitive(GL_LINES)
         .setShader(colorShader)
         .setShaderColor(0, 0, 0, 0.25f);
@@ -37,7 +37,7 @@ void Sketch::setup()
 
 void Sketch::resize()
 {
-    strokeBatch.clear();
+    lineBatch.clear();
     drawGuides();
     drawCircle(windowInfo.center(), RADIUS);
 
@@ -64,7 +64,7 @@ void Sketch::draw()
 
     // ---
 
-    strokeBatch.flush();
+    lineBatch.flush();
 
     font1->replaySequence(sequence1);
 
@@ -76,10 +76,10 @@ void Sketch::draw()
 
 void Sketch::drawGuides()
 {
-    strokeBatch.addVertices(glm::vec2(PADDING, 0), glm::vec2(PADDING, windowInfo.height));
-    strokeBatch.addVertices(glm::vec2(windowInfo.width - PADDING, 0), glm::vec2(windowInfo.width - PADDING, windowInfo.height));
-    strokeBatch.addVertices(glm::vec2(0, PADDING), glm::vec2(windowInfo.width, PADDING));
-    strokeBatch.addVertices(glm::vec2(0, windowInfo.height - PADDING), glm::vec2(windowInfo.width, windowInfo.height - PADDING));
+    lineBatch.addVertices(glm::vec2(PADDING, 0), glm::vec2(PADDING, windowInfo.height));
+    lineBatch.addVertices(glm::vec2(windowInfo.width - PADDING, 0), glm::vec2(windowInfo.width - PADDING, windowInfo.height));
+    lineBatch.addVertices(glm::vec2(0, PADDING), glm::vec2(windowInfo.width, PADDING));
+    lineBatch.addVertices(glm::vec2(0, windowInfo.height - PADDING), glm::vec2(windowInfo.width, windowInfo.height - PADDING));
 }
 
 void Sketch::drawCircle(const glm::vec2 &position, float radius)
@@ -96,7 +96,7 @@ void Sketch::drawCircle(const glm::vec2 &position, float radius)
 
     for (int i = 0; i < n - 1; i++)
     {
-        strokeBatch.addVertices(points[i], points[i + 1]);
+        lineBatch.addVertices(points[i], points[i + 1]);
     }
 }
 
