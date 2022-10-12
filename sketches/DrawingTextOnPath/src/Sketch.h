@@ -12,7 +12,6 @@ class Sketch : public chr::CrossSketch
 {
 public:
     void setup() final;
-    void resize() final;
     void draw() final;
 
 protected:

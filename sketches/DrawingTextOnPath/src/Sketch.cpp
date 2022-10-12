@@ -59,9 +59,6 @@ void Sketch::setup()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void Sketch::resize()
-{}
-
 void Sketch::draw()
 {
     glClearColor(1, 1, 1, 1);
