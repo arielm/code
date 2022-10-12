@@ -101,8 +101,8 @@ void Sketch::drawTextHelix(XFont &font, const u16string &text, float r, float tu
         {
             float d = offset / r;
             matrix
-                .setTranslate(-cosf(d) * r, +sinf(d) * r, d * dz)
-                .rotateZ(HALF_PI - d)
+                .setTranslate(-sinf(-d) * r, +cosf(-d) * r, d * dz)
+                .rotateZ(-d)
                 .rotateY(ay)
                 .rotateX(-HALF_PI);
 
