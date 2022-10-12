@@ -52,9 +52,7 @@ void Sketch::draw()
         .rotateX(CAMERA_ELEVATION * D2R);
 
     Matrix panMatrix;
-    panMatrix
-        .translate(-pan)
-        .inverse();
+    panMatrix.translate(pan);
 
     State()
         .setShaderMatrix<MVP>(panMatrix * camera.getViewProjectionMatrix())
